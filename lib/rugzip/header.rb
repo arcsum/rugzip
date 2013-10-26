@@ -45,7 +45,7 @@ module Rugzip
     ID1 = 0x1f
     ID2 = 0x8b
     
-    CM_RANGE = (0..7)
+    CM_RANGE = (0..8)
     
     attr_reader :id, :cm, :flg, :mtime, :xfl, :os
     
