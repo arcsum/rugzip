@@ -1,6 +1,5 @@
 require 'rugzip'
 require 'spec_helper'
-require 'stringio'
 
 describe Rugzip do
   subject { Rugzip }
@@ -8,20 +7,21 @@ describe Rugzip do
   let(:decompressed) { 'foobar' }
 
   let(:compressed) do
-    "\x1f\x8b\x08\x00\x2d\x3f\x6b\x52\x00\x03\x4b\xcb\xcf\x4f\x4a\x2c\xe2\x02\x00\x47\x97\x2c\xb2\x07\x00\x00\x00"
+    "\x1f\x8b\x08\x00\xdf\x95\x6c\x52\x00\x03\x4b\xcb\xcf\x4f\x4a\x2c\x02" \
+    "\x00\x95\x1f\xf6\x9e\x06\x00\x00\x00"
   end
 
-  describe '.compress' do
+  describe 'compress' do
     it 'should compress a simple string' do
       skip
     end
   end
   
-  describe '.decompress' do
+  describe 'decompress' do
+    let(:input)  { StringIO.new(compressed) }
+    let(:output) { StringIO.new }
+    
     it 'should decompress a simple string' do
-      input  = StringIO.new(compressed)
-      output = StringIO.new
-      
       subject.decompress(input, output)
       output.string.must_equal(decompressed)
     end

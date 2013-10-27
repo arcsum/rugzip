@@ -33,7 +33,7 @@ module Rugzip
       zstream.finish
       zstream.close
       
-      @out.write(deflated)
+      @out.write(inflated)
     end
     
     def parse_fcomment
