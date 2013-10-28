@@ -3,6 +3,7 @@ require 'zlib'
 
 module Rugzip
   class Decompressor
+    BUF_LEN     = 4096
     TRAILER_LEN = 8
     
     def initialize(input, output)
@@ -23,17 +24,26 @@ module Rugzip
     private
     
     def inflate_data
-      # find the # of bytes needed to read the compressed blocks and read them
-      data_len = @in.size - TRAILER_LEN - @in.pos
-      deflated = @in.read(data_len)
-      
-      # inflate the compressed blocks
       zstream = Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      inflated = zstream.inflate(deflated)
+      
+      # find the # of bytes needed to read the compressed blocks
+      data_len = @in.size - TRAILER_LEN - @in.pos
+      
+      # read the deflated blocks and inflate them
+      bytes_read = 0
+      while bytes_read < data_len
+        bytes_left = data_len - bytes_read
+        buflen = [bytes_left, BUF_LEN].min
+        
+        deflated = @in.read(buflen)
+        inflated = zstream.inflate(deflated)
+        
+        @out.write(inflated)
+        bytes_read += deflated.bytesize
+      end
+      
       zstream.finish
       zstream.close
-      
-      @out.write(inflated)
     end
     
     def parse_fcomment
