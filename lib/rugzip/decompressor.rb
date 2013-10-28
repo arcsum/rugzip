@@ -3,6 +3,8 @@ require 'zlib'
 
 module Rugzip
   class Decompressor
+    class BadIO < StandardError; end
+    
     BUF_LEN     = 4096
     TRAILER_LEN = 8
     
@@ -19,6 +21,7 @@ module Rugzip
       parse_fhcrc
       inflate_data
       parse_trailer
+      @out
     end
     
     private
@@ -69,8 +72,9 @@ module Rugzip
     end
     
     def parse_header
+      raise BadIO if @in.size < Header::STATIC_LEN
       @header = Header.new(@in.read(Header::STATIC_LEN))
-      raise 'yo, make an error for this later' unless @header.valid?
+      raise BadIO unless @header.valid?
     end
     
     def parse_trailer
