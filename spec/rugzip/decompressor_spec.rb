@@ -34,5 +34,17 @@ describe Rugzip::Decompressor do
         proc { subject.decompress }.must_raise(Rugzip::Decompressor::BadIO)
       end
     end
+    
+    describe 'with a large input' do
+      let(:input) do
+        compressed = `cat /usr/share/dict/words | gzip -8 --stdout`
+        StringIO.new(compressed)
+      end
+      
+      it 'should decompress correctly' do
+        skip unless File.exist?('/usr/share/dict/words') && !`which gzip`.empty?
+        subject.decompress.string.must_equal(File.read('/usr/share/dict/words'))
+      end
+    end
   end
 end
