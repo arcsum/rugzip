@@ -24,9 +24,17 @@ module Rugzip
       def fcomment?
         set?(4)
       end
+      
+      def reserved
+        (5..7).map { |i| get(i) }
+      end
 
       def to_i
         @byte
+      end
+      
+      def valid?
+        reserved.all?(&:zero?)
       end
 
       private
@@ -66,6 +74,7 @@ module Rugzip
       valid = false if id[0] != ID1
       valid = false if id[1] != ID2
       valid = false unless CM_RANGE.cover?(cm)
+      valid = false unless flg.valid?
       
       valid
     end

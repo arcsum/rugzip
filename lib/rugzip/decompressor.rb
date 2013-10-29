@@ -68,7 +68,8 @@ module Rugzip
     
     def parse_fname
       return unless @header.flg.fname?
-      # TODO
+      # read (and ignore) filename terminated by 0 byte
+      fname = @in.gets("\0")
     end
     
     def parse_header

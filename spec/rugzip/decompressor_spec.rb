@@ -46,5 +46,19 @@ describe Rugzip::Decompressor do
         subject.decompress.string.must_equal(File.read('/usr/share/dict/words'))
       end
     end
+    
+    describe 'with a file input' do
+      let(:input) do
+        File.open(File.join('spec', 'fixtures', 'foobar.gz'))
+      end
+      
+      let(:decompressed_contents) do
+        File.read(File.join('spec', 'fixtures', 'foobar'))
+      end
+      
+      it 'should decompress the file' do
+        subject.decompress.string.must_equal(decompressed_contents)
+      end
+    end
   end
 end
