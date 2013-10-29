@@ -6,6 +6,7 @@ module Rugzip
     class BadIO < StandardError; end
     
     BUF_LEN     = 4096
+    FHCRC_LEN   = 2
     TRAILER_LEN = 8
     
     def initialize(input, output)
@@ -51,7 +52,8 @@ module Rugzip
     
     def parse_fcomment
       return unless @header.flg.fcomment?
-      # TODO
+      # read (and ignore) file comment terminated by 0 byte
+      fcomment = @in.gets("\0")
     end
     
     def parse_fextra
@@ -64,6 +66,7 @@ module Rugzip
     
     def parse_fhcrc
       return unless @header.flg.fhcrc?
+      crc16 = @in.read(FHCRC_LEN).unpack('L')
     end
     
     def parse_fname
@@ -79,7 +82,7 @@ module Rugzip
     end
     
     def parse_trailer
-      # TODO
+      crc32, isize = @in.read(TRAILER_LEN).unpack('L2')
     end
     
     def reset
