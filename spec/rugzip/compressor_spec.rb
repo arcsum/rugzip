@@ -16,7 +16,11 @@ describe Rugzip::Compressor do
   
   describe '#compress' do
     it 'should compress a simple string' do
-      subject.compress.string.must_equal(compressed)
+      expected_bytes = compressed.bytes
+      actual_bytes   = subject.compress.string.bytes
+      
+      # compare ID1, ID2, CM, FLG
+      actual_bytes[0..3].must_equal(expected_bytes[0..3])
     end
   end
 end
