@@ -55,17 +55,22 @@ module Rugzip
     
     CM_RANGE = (0..8)
     
-    attr_reader :id, :cm, :flg, :mtime, :xfl, :os
+    attr_accessor :id, :cm, :flg, :mtime, :xfl, :os
     
-    def initialize(data)
-      bytes = data.unpack('C4LC2')
-      
-      @id    = bytes[0..1]
-      @cm    = bytes[2]
-      @flg   = Flags.new(bytes[3])
-      @mtime = bytes[4]
-      @xfl   = bytes[5]
-      @os    = bytes[6]
+    def initialize(data=nil)
+      if data
+        bytes = data.unpack('C4LC2')
+        
+        self.id    = bytes[0..1]
+        self.cm    = bytes[2]
+        self.flg   = Flags.new(bytes[3])
+        self.mtime = bytes[4]
+        self.xfl   = bytes[5]
+        self.os    = bytes[6]
+      else
+        self.id = [ID1, ID2]
+        self.cm = CM_RANGE.last
+      end
     end
     
     def valid?
