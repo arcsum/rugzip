@@ -3,6 +3,8 @@ require 'rugzip/trailer'
 
 module Rugzip
   class Compressor
+    COMPRESSION_LEVEL = 8
+    
     def initialize(input, output)
       @in, @out = input, output
     end
@@ -11,11 +13,12 @@ module Rugzip
       reset
       
       build_header
-      deflate_data
       # TODO: check FTEXT
       build_trailer
       
       write_header
+      deflate_data
+      write_trailer
       
       @out
     end
@@ -23,7 +26,14 @@ module Rugzip
     private
     
     def deflate_data
-      # TODO
+      zstream = Zlib::Deflate.new(COMPRESSION_LEVEL, -Zlib::MAX_WBITS)
+      
+      inflated = @in.read
+      deflated = zstream.deflate(inflated, Zlib::FINISH)
+      @out.write(deflated)
+      
+      zstream.finish
+      zstream.close
     end
     
     def build_header
@@ -51,6 +61,10 @@ module Rugzip
     
     def write_header
       @out.write(@header.to_s)
+    end
+    
+    def write_trailer
+      @out.write(@trailer.to_s)
     end
   end
 end

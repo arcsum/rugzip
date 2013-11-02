@@ -107,7 +107,7 @@ module Rugzip
     
     def to_s
       data = ''
-      data << [id[0], id[1], cm, flg.to_i].pack('CCCC')
+      data << [id[0], id[1], cm, flg.to_i, mtime, xfl, os].pack('CCCCLCC')
     end
     
     def valid?

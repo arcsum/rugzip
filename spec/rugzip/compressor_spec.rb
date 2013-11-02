@@ -21,6 +21,9 @@ describe Rugzip::Compressor do
       
       # compare ID1, ID2, CM, FLG
       actual_bytes[0..3].must_equal(expected_bytes[0..3])
+      
+      # compare compressed blocks
+      actual_bytes[10..17].must_equal(expected_bytes[10..-9])
     end
   end
 end
