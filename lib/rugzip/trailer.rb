@@ -7,9 +7,8 @@ module Rugzip
       self.isize = 0
     end
     
-    def to_s
-      data = ''
-      data << [crc32, isize].pack('LL')
+    def pack
+      [crc32, isize].pack('LL')
     end
   end
 end

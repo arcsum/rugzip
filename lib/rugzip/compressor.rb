@@ -62,11 +62,11 @@ module Rugzip
     end
     
     def write_header
-      @out.write(@header.to_s)
+      @out.write(@header.pack)
     end
     
     def write_trailer
-      @out.write(@trailer.to_s)
+      @out.write(@trailer.pack)
     end
   end
 end
