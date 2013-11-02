@@ -3,6 +3,7 @@ require 'rugzip/trailer'
 
 module Rugzip
   class Compressor
+    BUF_LEN           = 4096
     COMPRESSION_LEVEL = 8
     
     def initialize(input, output)
@@ -28,9 +29,10 @@ module Rugzip
     def deflate_data
       zstream = Zlib::Deflate.new(COMPRESSION_LEVEL, -Zlib::MAX_WBITS)
       
-      inflated = @in.read
-      deflated = zstream.deflate(inflated, Zlib::FINISH)
-      @out.write(deflated)
+      while (inflated = @in.read(BUF_LEN))
+        deflated = zstream.deflate(inflated, Zlib::FINISH)
+        @out.write(deflated)
+      end
       
       zstream.finish
       zstream.close
