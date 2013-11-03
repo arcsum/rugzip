@@ -1,5 +1,6 @@
 require 'rugzip/header'
 require 'rugzip/trailer'
+require 'zlib'
 
 module Rugzip
   class Compressor
@@ -12,15 +13,9 @@ module Rugzip
 
     def compress
       reset
-      
-      build_header
-      # TODO: check FTEXT
-      build_trailer
-      
       write_header
       deflate_data
       write_trailer
-      
       @out
     end
     
@@ -30,27 +25,19 @@ module Rugzip
       zstream = Zlib::Deflate.new(COMPRESSION_LEVEL, -Zlib::MAX_WBITS)
       
       while (inflated = @in.read(BUF_LEN))
+        # update checksum
+        if @crc
+          @crc = Zlib.crc32_combine(@crc, Zlib.crc32(inflated), inflated.size)
+        else
+          @crc = Zlib.crc32(inflated)
+        end
+        
         deflated = zstream.deflate(inflated, Zlib::FINISH)
         @out.write(deflated)
       end
       
       zstream.finish
       zstream.close
-    end
-    
-    def build_header
-      @header = Header.new
-      
-      if file_input?
-        @header.flg.fname!
-        @header.mtime = @in.mtime.to_i
-      end
-    end
-    
-    def build_trailer
-      @trailer = Trailer.new
-      # TODO: set CRC-32
-      @trailer.isize = @in.size % (2 ** 32)
     end
     
     def file_input?
@@ -62,11 +49,22 @@ module Rugzip
     end
     
     def write_header
-      @out.write(@header.pack)
+      header = Header.new
+      
+      if file_input?
+        header.flg.fname!
+        header.mtime = @in.mtime.to_i
+      end
+      
+      @out.write(header.pack)
     end
     
     def write_trailer
-      @out.write(@trailer.pack)
+      trailer = Trailer.new
+      trailer.crc32 = @crc
+      trailer.isize = @in.size % (2 ** 32)
+      
+      @out.write(trailer.pack)
     end
   end
 end
