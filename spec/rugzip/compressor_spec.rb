@@ -19,6 +19,8 @@ describe Rugzip::Compressor do
       expected_bytes = compressed.bytes
       actual_bytes   = subject.compress.string.bytes
       
+      actual_bytes.size.must_equal(expected_bytes.size)
+      
       # compare ID1, ID2, CM, FLG
       actual_bytes[0..3].must_equal(expected_bytes[0..3])
       
